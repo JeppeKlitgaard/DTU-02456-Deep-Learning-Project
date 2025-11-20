@@ -1,0 +1,1 @@
+_UNRAR_WINDOWS_URL = "https://www.rarlab.com/rar/unrarw64.exe"
