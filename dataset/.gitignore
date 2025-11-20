@@ -4,3 +4,4 @@ UnRAR.exe
 # Large files that are stored in HF
 data/metadata.parquet
 data/**/*.tar
+temp/
