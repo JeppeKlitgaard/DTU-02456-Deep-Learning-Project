@@ -14,7 +14,7 @@ To install `tex2typ` enter `vendored/tex2typ` (which must be hydrated via `git s
 ## Uploading to HF
 
 ```
-hf upload --repo-type dataset JeppeKlitgaard/typst-image-dataset data/ .
+hf upload --repo-type=dataset JeppeKlitgaard/typst-image-dataset data
 ```
 
 [huang_dataset]: 
