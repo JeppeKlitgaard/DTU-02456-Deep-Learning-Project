@@ -1,6 +1,6 @@
 [submodule "vendored/tex2typ"]
 	path = vendored/tex2typ
-	url = https://github.com/ParaN3xus/tex2typ
+	url = https://github.com/JeppeKlitgaard/tex2typ
 [submodule "vendored/mitex"]
 	path = vendored/mitex
 	url = https://github.com/mitex-rs/mitex.git
