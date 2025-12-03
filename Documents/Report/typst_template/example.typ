@@ -1,22 +1,17 @@
-#import "@preview/codly:1.3.0": *
-#import "@preview/codly-languages:0.1.1": *
+#import "template.typ": abstract, course, names, style
 
-#import "typst_template/template.typ": abstract, course, names, style
-
-#show: codly-init.with() // Setup Codly
 #show: style  // Use template
-
-#show raw.where(block: true): set text(size: 0.9em) // More spacing for code blocks
-#codly(inset: (top: 0.2em, bottom: 0.2em))
-
-#set document(title: "Transcription of Mathematical Expressions into Typst Syntax using a Vision-Encoder-Decoder Architecture")
+#set document(title: "Template for Projects in 02456")
 
 #course("02456 Deep Learning, DTU Compute, Fall 2025")
 
 #title()
 
 #names((
-  "Jeppe Klitgaard (S250250)",
+  "Anders Andersen (S123456)",
+  "Bent Bentsen (S123457)",
+  "Christian Christensen (S123458)",
+  "Ditte Dittesen (S123459)"
 ))
 
 #abstract[
@@ -26,52 +21,9 @@ The abstract should appear at the top of the left-hand column of text, about 0.5
 = Introduction <sec:intro>
 These guidelines include complete descriptions of the fonts, spacing, and related information for producing your proceedings manuscripts.
 
-= The Typst Language <sec:typst>
-
-The Typst~@typst markup language is a modern alternative to established typesetting systems such as TeX/LaTeX as well as document processors such as Microsoft Word and Google Docs. It places a strong emphasis on usability and performance while maintaining the highest standards of typographic quality. Additionally, Typst offers modern features such as online collaboration, accessibility support, native scripting, and extensibility through packages.
-
-#let typst_sample = read("typst_sample.typ")
-#let typst_render = [
-  #set text(size: 8pt)
-  #eval(typst_sample)
-]
-
-#let latex_sample = read("latex_sample.tex")
-#let latex_render = context image("latex_sample.svg", height: measure(typst_render).height, width: measure(typst_render).width)
-
-As an example of a mathematical expression typeset in Typst, consider @fig:typst_sample:
-#figure(
-  raw(typst_sample, lang: "Typst", block: true),
-  caption: [Mathematical expression typeset in Typst.],
-) <fig:typst_sample>
-
-With the LaTeX equivalent seen in @fig:latex_sample:
-#figure(
-  raw(latex_sample, lang: "LaTeX", block: true),
-  caption: [Mathematical expression typeset in LaTeX.],
-) <fig:latex_sample>
-
-#figure(
-  table(
-    columns: (1fr, 1fr),
-    align: center,
-    table.header([*Typst*], [*LaTeX*]),
-    typst_render, latex_render,
-  ),
-  caption: [Side-by-side comparison of the Typst and LaTeX renderings of @fig:typst_sample and @fig:latex_sample respectively.],
-)
-
-= Vision-Encoder-Decoder Model <sec:model>
-
-The model architecture used in this project is based on the TrOCR model developed by Microsoft~@trocr, which has been shown to work for both classic text recognition as well as transcription into markup @stanfordpaper, @latexocr, @pix2text with varying degrees of success.
-
-
-= Data <sec:data>
-
-
-
 = Formatting your paper <sec:format>
 All printed material, including text, illustrations, and charts, must be kept within a print area of 7 inches (178 mm) wide by 9 inches (229 mm) high. Do not write or print anything outside the print area. The top margin must be 1 inch (25 mm), except for the title page, and the left margin must be 0.75 inch (19 mm). All \emph{text} must be in a two-column format. Columns are to be 3.39 inches (86 mm) wide, with a 0.24 inch (6 mm) space between them. Text must be fully justified.
+
 
 = Page title section <sec:pagestyle>
 The paper title (on the first page) should begin 1.38 inches (35 mm) from the top edge of the page, centered, completely capitalized, and in Times 14-point, boldface type. The authors' name(s) and affiliation(s) appear below the title in capital and lower case letters. Papers with multiple authors and affiliations may require two or more lines for this information.
@@ -112,13 +64,14 @@ Illustrations must appear within the designated margins. They may span the two c
 Use footnotes sparingly (or not at all!) and place them at the bottom of the column on the page on which they are referenced. Use Times 9-point type, single-spaced. To help your readers, avoid using footnotes altogether and include necessary peripheral observations in the text (within parentheses, if you prefer, as in this sentence).
 
 = References <sec:ref>
-List and number all bibliographical references at the end of the paper. References may be numbered (either alphabetically or in order of appearance) or follow the author–year citation style . If you use a numeric style, cite references using square brackets, e.g.. If you use an author–year style, cite using round brackets.
+List and number all bibliographical references at the end of the paper. References may be numbered (either alphabetically or in order of appearance) or follow the author–year citation style . If you use a numeric style, cite references using square brackets, e.g., @C2. If you use an author–year style, cite using round brackets.
 
-#bibliography("references.bib", title: none)
+#bibliography("template.bib", title: none)
 
 #pagebreak()
-== Declaration of use of generative AI <nonumber>
-This declaration *must* be filled out and included as the *final  page* of the document. The questions apply to all parts of the work, including research, project writing, and coding.
+
+= Declaration of use of generative AI <nonumber>
+This declaration *must* be filled out and included as the *final page* of the document. The questions apply to all parts of the work, including research, project writing, and coding.
 
 - I/we have used generative AI tools: [yes / no]
 
@@ -132,14 +85,3 @@ Describe how the tools were used:
 - *What did you use the tool(s) for?*
 - *At what stage(s) of the process did you use the tool(s)?*
 - *How did you use or incorporate the generated output?*
-
-#pagebreak()
-
-#counter(heading).update(0)
-#set heading( numbering: "A.1.")
-= Appendix
-
-== Full LaTeX Sample Code <app:latexcode>
-
-#raw(read("latex_sample_overleaf.tex"), lang: "LaTeX", block: true)
-
