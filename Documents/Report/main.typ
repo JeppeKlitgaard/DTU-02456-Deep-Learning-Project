@@ -24,6 +24,7 @@ The abstract should appear at the top of the left-hand column of text, about 0.5
 ]
 
 = Introduction <sec:intro>
+This report describes the motivation and implementation of a deep learning model for transcription of mathematical expressions from images into the Typst markup language
 These guidelines include complete descriptions of the fonts, spacing, and related information for producing your proceedings manuscripts.
 
 = The Typst Language <sec:typst>
@@ -61,63 +62,83 @@ With the LaTeX equivalent seen in @fig:latex_sample:
   caption: [Side-by-side comparison of the Typst and LaTeX renderings of @fig:typst_sample and @fig:latex_sample respectively.],
 )
 
+Notable differences between the two systems include the improved ergonomics of the Typst syntax as well as a features such as automatic fractions, delimiter sizing, and ligatures. Additionally, the Typst syntax in @fig:typst_sample
+compiles as-is, whereas the LaTeX equivalent requires use of the `amsmath` package as well as additional boilerplate code as seen in @app:latexcode.
+
+TODO: Maybe upright differential?
+
+= Data <sec:data>
+
+Due to the relative recency of the Typst language, there exists only very limited publicly available datasets, which are unlikely to be suitable or sufficient for training a deep learning transcription model. In light of this, we generate a dataset by leveraging the `tex2typ` program developed by Typst community member `ParaN3xus`~@tex2typ, which is capable of generating Typst expression from LaTeX input. With this, we are able to construct a dataset of Typst expressions and associated images by conversion of the data found in the `fusion-image-to-latex-datasets` dataset~@hoangDataset to produce a dataset of 3.3 million image-label pairs which is publically available at @jkDataset. In order to facilitate efficient random-access loading during training, the dataset is made available in the `WebDataset` format as opposed to the original RAR archival format.
+
 = Vision-Encoder-Decoder Model <sec:model>
 
 The model architecture used in this project is based on the TrOCR model developed by Microsoft~@trocr, which has been shown to work for both classic text recognition as well as transcription into markup @stanfordpaper, @latexocr, @pix2text with varying degrees of success.
 
+We leverage a pre-trained model, `microsoft/trocr-small-stage1`~@trocr, whose architecture is depicted in @fig:trocr_architecture. It is comprised of a DeIT Vision Transformer~@deit which we tersely summarise as a model which encodes images into a sequence of embeddings by first resizing them into a $H×W = 384×384$ pixel image and subsequently splitting them into $P×P = 16×16$ patches, which are then flattened and linearly projected into the $D=384$-dimensional embedding space alongside positional embeddings which describe the patch positions in the full, resized image. This sequence of embeddings alongside a classification token `[CLS]` and a destillation token `[DIST]` is then passed through 12 layers of hidden size $D$ made up of a 6-head self-attention block and a fully-connected feed-forward network
+wherein the embeddings are expanded onto a $4D=1536$-dimensional space prior to activation using a GELU activation function before being projected back down to the original $D$-dimensional space. Additionally, the model features residual connections and layer normalisations as described in @deit.
 
-= Data <sec:data>
-
-
-
-= Formatting your paper <sec:format>
-All printed material, including text, illustrations, and charts, must be kept within a print area of 7 inches (178 mm) wide by 9 inches (229 mm) high. Do not write or print anything outside the print area. The top margin must be 1 inch (25 mm), except for the title page, and the left margin must be 0.75 inch (19 mm). All \emph{text} must be in a two-column format. Columns are to be 3.39 inches (86 mm) wide, with a 0.24 inch (6 mm) space between them. Text must be fully justified.
-
-= Page title section <sec:pagestyle>
-The paper title (on the first page) should begin 1.38 inches (35 mm) from the top edge of the page, centered, completely capitalized, and in Times 14-point, boldface type. The authors' name(s) and affiliation(s) appear below the title in capital and lower case letters. Papers with multiple authors and affiliations may require two or more lines for this information.
-
-= Type-style and fonts <sec:typestyle>
-We strongly encourage you to use Times-Roman font. In addition, this will give the proceedings a more uniform look. Use a font that is no smaller than ten point type throughout the paper, including figure captions.
-
-This is a minimum spacing; 2.75 lines/cm (7 lines/inch) will make the paper much more readable. Larger type sizes require correspondingly larger vertical spacing. Please do not double-space your paper. True-Type 1 fonts are preferred.
-
-The first paragraph in each section should not be indented, but all the following paragraphs within the section should be indented as these paragraphs demonstrate.
-
-= Major headings <sec:majhead>
-Major headings, for example, "1. Introduction", should appear in all capital letters, bold face if possible, centered in the column, with one blank line before, and one blank line after. Use a period (".") after the heading number, not a colon.
-
-== Subheadings <ssec:subhead>
-Subheadings should appear in lower case (initial word capitalized) in boldface. They should start at the left margin on a separate line.
-
-=== Sub-subheadings <sssec:subsubhead>
-Sub-subheadings, as in this paragraph, are discouraged. However, if you must use them, they should appear in lower case (initial word capitalized) and start at the left margin on a separate line, with paragraph text beginning on the following line. They should be in italics.
-
-
-= Printing your paper <sec:print>
-If the last page of your paper is only partially filled, arrange the columns so that they are evenly balanced if possible, rather than having one long column.
-
-#pagebreak()
-
-= Illustrations, graphs, and photographs <sec:illust>
-Illustrations must appear within the designated margins. They may span the two columns. If possible, position illustrations at the top of columns, rather than in the middle or at the bottom. Caption and number every illustration.
+Rather than the classification heads used in the original DeIT model, we pass the embeddings from the vision encoder into a pretrained MiniLM Transformer described in @minilm, to which an encoder-decoder cross-attention mechanism enabling the retrieval of information from the image embeddings from queries through the decoder is added. This cross-attention mechanism is placed between the standard 8-head self-attention and the feed-forward network blocks that make up the 6 layers of the decoder. Lastly, the hidden states from the decoder are projected onto a vocabulary of size $V=4096$ over which probabilities are computed using a softmax function, which in turn enables the generation of output sequences using beam search. Generation of the vocabulary and tokenisation is described further in @sec:token.
 
 #figure(
-  //image("some_image.png"),
-  rect(height: 4cm, width: 97%),
-  caption: [Example of placing a figure with experimental results.],
-) <fig:res>
-#colbreak()
+  image("assets/trocr_architecture.png"),
+  caption: [
+    The TrOCR model architecture showing the Vision Transformer encoder and Transformer decoder components. Figure adapted from @trocr under CC BY-NC-SA 4.0.
+  ]
+) <fig:trocr_architecture>
 
-= Footnotes <sec:foot>
-Use footnotes sparingly (or not at all!) and place them at the bottom of the column on the page on which they are referenced. Use Times 9-point type, single-spaced. To help your readers, avoid using footnotes altogether and include necessary peripheral observations in the text (within parentheses, if you prefer, as in this sentence).
+== Comparison with other architectures <ssec:arch_comp>
+Alternative model architectures include a combination of Convolutional and Recurrent Neural Networks (CNN, RNN), which may be used in a similar encoder-decoder configuration as the TrOCR model described above, as proposed in @crnn. We theorise that such architectures are ill-suited for transcription into rigid markup languages such as Typst due to their limited ability to capture long-range dependencies required by the syntax structure of such languages. As a example, the opening and closing parenthesis of the `cases` element in @fig:typst_sample are not reflected readily in the visual representation of the expression. This may in part be mitigated through the addition of attention mechanisms or LSTM networks, the discussion of which is beyond the scope of this report.
 
+= Tokenisation <sec:token>
+
+The default vocabulary and associated tokenisation scheme used in the TrOCR architecture is based on the Byte-Pair Encoding (BPE) @bpe and SentencePiece @sentencepiece algorithms with a vocabulary size of $V=64044$. We propose that a significantly smaller vocabulary specifically tailored to the Typst language may yield efficiency and and performance benefits due to the constrained syntax of the language and the intended application of the model. To this end, we construct a custom BPE tokenizer with a vocabulary size of $V=4096$ using the `tokenizers` library by HuggingFace. Given the limited number of symbols in the Typst Language, the tokenizer is initialised with a base vocabulary consisting of the functions exposed in its math-mode syntax as documented on the website~@typstDocsMath as well as the `sym.txt` table of the Codex project~@typstCodex which contains ASCII mappings to a vast number of unicode symbols.
+
+Additionally, we employ a pre-tokenisation step in which individual digits of a number are split into separate tokens in order to encourage the model to learn the appropropriate semantic structure rather than the memorisation of specific numbers.
+
+
+#let typst_tokenizer_example = json("typst_tokenizer_example.json")
+#let default_tokenizer_example = json("default_tokenizer_example.json")
+#let tokenizer_example_max_len = calc.max(
+  typst_tokenizer_example.len(),
+  default_tokenizer_example.len(),
+)
+
+#let tokenize(text) = box(strong(raw(text)), fill: gray.transparentize(50%), inset: 2pt)
+Lastly, the custom tokenizer is trained on the corpus of 3.3 million Typst expression found in the dataset described in @sec:data using a BPE training procedure with the target vocabulary size of $4096$. To visualise the difference in tokenisation between our custom Typst tokenizer and the default TrOCR tokenizer, we tokenize the expression `underbrace(f(theta), "obj")` using both tokenizers to produce:\
+Ours: #typst_tokenizer_example.map(tokenize).join(" ")\
+Default: #default_tokenizer_example.map(tokenize).join(" ")
+
+Coincidentally, both methods produce sequence lengths of $13$. However, our tokenizer offers much higher semantic coherence despite a smaller vocabulary. By encoding Typst keywords as atomic tokens, we imbue the model with a stronger inductive bias and disambiguate the output. As an example of this, we note that the default tokenizer cleaves the `underbrace` function into 3 tokens: `under`, `b`, `race`, which may lead the model to generate invalid syntax in situations of uncertainty. Similarly, the smaller vocabulary size reflects the much smaller active corpus of the Typst language compared to general natural language text, introducing further structural consistency and lessens the training required.
+
+TODO Available on HuggingFace
+
+= Model Training
+
+
+
+TODO: Split training, frozen encoder, yada yada
+TODO: Loss
+
+= Evaluation Metrics
+
+In order to evaluate the performance of the model, we employ the familiar Character Error Rate (CER) in addition to two custom metrics, the first of which is the fraction of evaluated predictions that successfully compile using the Typst compiler. Alone, this is a rather poor metric, but it offers observability into the training process.
+
+Additionally, since both the label and prediction are sequences of Typst code, we may render both expressions and compare them using either a Structural Similarity Index Measure (SSIM) or Intersection-over-Union (IoU) metric. While the latter may generally be considered a difficult metric, it is well-suited here given its ability to express the _semantic_ similarity between Typst expressions, which will produce a score of unity for equivalent expressions. As such, it pairs well with CER, which captures the _syntactic_ similarity between the sequences.
+
+
+pytypst...
+
+= Model Performance
+
+= Conclusion and Future Work
+
+#pagebreak()
 = References <sec:ref>
-List and number all bibliographical references at the end of the paper. References may be numbered (either alphabetically or in order of appearance) or follow the author–year citation style . If you use a numeric style, cite references using square brackets, e.g.. If you use an author–year style, cite using round brackets.
-
 #bibliography("references.bib", title: none)
 
 #pagebreak()
-== Declaration of use of generative AI <nonumber>
+= Declaration of use of generative AI <nonumber>
 This declaration *must* be filled out and included as the *final  page* of the document. The questions apply to all parts of the work, including research, project writing, and coding.
 
 - I/we have used generative AI tools: [yes / no]
@@ -136,7 +157,8 @@ Describe how the tools were used:
 #pagebreak()
 
 #counter(heading).update(0)
-#set heading( numbering: "A.1.")
+#set heading(numbering: "A.1.")
+#set heading(supplement: "Appendix")
 = Appendix
 
 == Full LaTeX Sample Code <app:latexcode>
