@@ -1,0 +1,16 @@
+// Alignment
+start
+end
+left
+center
+right
+top
+horizon
+bottom
+
+// Axis
+horizontal
+vertical
+
+// Other
+inv

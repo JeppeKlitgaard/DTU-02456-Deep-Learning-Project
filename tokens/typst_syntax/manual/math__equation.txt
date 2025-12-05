@@ -1,0 +1,9 @@
+// Function: equation
+equation
+
+// Args
+block
+numbering
+number-align
+supplement
+alt

@@ -1,0 +1,9 @@
+// Function: cancel
+cancel
+
+// Args
+length
+inverted
+cross
+angle
+stroke

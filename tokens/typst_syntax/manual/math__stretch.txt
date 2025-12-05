@@ -1,0 +1,6 @@
+// Function: stretch
+stretch
+
+// Args
+body
+size

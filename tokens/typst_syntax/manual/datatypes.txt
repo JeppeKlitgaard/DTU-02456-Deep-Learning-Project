@@ -1,0 +1,12 @@
+// sizes
+mm
+cm
+em
+pt
+in
+%
+// boolean
+true
+false
+// none
+none

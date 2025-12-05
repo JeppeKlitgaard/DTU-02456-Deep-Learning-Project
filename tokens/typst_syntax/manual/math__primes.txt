@@ -1,0 +1,5 @@
+// Function primes
+primes
+
+// Args
+count

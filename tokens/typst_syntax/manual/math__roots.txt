@@ -1,0 +1,12 @@
+// Function: root
+root
+
+// Args
+index
+radicand
+
+// Function: sqrt
+sqrt
+
+// Args
+radicand

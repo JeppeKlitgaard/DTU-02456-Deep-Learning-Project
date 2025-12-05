@@ -1,0 +1,8 @@
+// Function: vec
+vec
+
+// Args
+delim
+align
+gap
+children

@@ -1,0 +1,32 @@
+// Function: accent
+accent
+
+// Args
+base
+accent
+size
+dotless
+
+// accent(base)
+
+// accent(accent)
+grave
+acute
+hat
+tilde
+macron
+dash
+breve
+dot
+dot.double
+diaer
+dot.triple
+dot.quad
+circle
+acute.double
+caron
+arrow
+arrow.l
+arrow.l.r
+harpoon
+harpoon.lt

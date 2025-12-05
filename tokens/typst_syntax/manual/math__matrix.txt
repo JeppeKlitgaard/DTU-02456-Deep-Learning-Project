@@ -1,0 +1,15 @@
+// Function: mat
+mat
+
+// Args
+delim
+align
+augment
+gap
+row-gap
+column-gap
+
+// Arg: augment
+hline
+vline
+stroke
