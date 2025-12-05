@@ -196,7 +196,7 @@ The proposed tokenizer significantly improved the representation of Typst code b
 
 We propose that future work on a TrOCR model for mathematical transcription investigate whether larger models, such as those based on the `trocr-base-stage1` variant, are able to achieve improved performance. Additionally, we encourage such work to also include an investigation into the performance of the model proposed in this document given longer training times.
 
-The code used to generate the data and train the models described in this document is available at
+The code used to generate the data and train the models described in this document is made available on GitHub at `https://github.com/JeppeKlitgaard/DTU-02456-Deep-Learning-Project`.
 
 #pagebreak()
 = References <sec:ref>
