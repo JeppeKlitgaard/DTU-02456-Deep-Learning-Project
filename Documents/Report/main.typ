@@ -202,6 +202,17 @@ The code used to generate the data and train the models described in this docume
 = References <sec:ref>
 #bibliography("references.bib", title: none)
 
+#set page(columns: 1)
+#pagebreak()
+#counter(heading).update(0)
+#set heading(numbering: "A.1.")
+#set heading(supplement: "Appendix")
+= Appendix
+
+== Full LaTeX Sample Code <app:latexcode>
+
+#raw(read("latex_sample_overleaf.tex"), lang: "LaTeX", block: true)
+
 #pagebreak()
 = Declaration of use of generative AI <nonumber>
 This declaration *must* be filled out and included as the *final  page* of the document. The questions apply to all parts of the work, including research, project writing, and coding.
@@ -226,14 +237,4 @@ Describe how the tools were used:
   ```
 - The model was asked to summarise the difference between DeIT and ViT models to aide in my understanding. This was not incorporated into the report.
 
-#pagebreak()
-
-#counter(heading).update(0)
-#set heading(numbering: "A.1.")
-#set heading(supplement: "Appendix")
-= Appendix
-
-== Full LaTeX Sample Code <app:latexcode>
-
-#raw(read("latex_sample_overleaf.tex"), lang: "LaTeX", block: true)
 
