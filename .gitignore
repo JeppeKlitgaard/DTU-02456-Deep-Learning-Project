@@ -7,6 +7,8 @@ __pycache__/
 # Project
 /data/
 /logs/
+/models/
+/archive/
 
 # Secrets
 .env
