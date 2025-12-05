@@ -69,7 +69,7 @@ TODO: Maybe upright differential?
 
 = Data <sec:data>
 
-Due to the relative recency of the Typst language, there exists only very limited publicly available datasets, which are unlikely to be suitable or sufficient for training a deep learning transcription model. In light of this, we generate a dataset by leveraging the `tex2typ` program developed by Typst community member `ParaN3xus`~@tex2typ, which is capable of generating Typst expression from LaTeX input. With this, we are able to construct a dataset of Typst expressions and associated images by conversion of the data found in the `fusion-image-to-latex-datasets` dataset~@hoangDataset to produce a dataset of 3.3 million image-label pairs which is publically available at @jkDataset. In order to facilitate efficient random-access loading during training, the dataset is made available in the `WebDataset` format as opposed to the original RAR archival format.
+Due to the relative recency of the Typst language, there exists only very limited publicly available datasets, which are unlikely to be suitable or sufficient for training a deep learning transcription model. In light of this, significant effort went into generating a dataset by leveraging the `tex2typ` program developed by Typst community member `ParaN3xus`~@tex2typ, which is capable of generating Typst expression from LaTeX input. With this, we are able to construct a dataset of Typst expressions and associated images by conversion of the data found in the `fusion-image-to-latex-datasets` dataset~@hoangDataset to produce a dataset of 3.3 million image-label pairs which is publically available at @jkDataset. In order to facilitate efficient random-access loading during training, the dataset is made available in the `WebDataset` format as opposed to the original RAR archival format.
 
 = Vision-Encoder-Decoder Model <sec:model>
 
@@ -115,8 +115,9 @@ TODO Available on HuggingFace
 
 = Model Training
 
+While the use of pre-trained weights from the `microsoft/trocr-small-stage1` model offers a strong starting point and significantly reduces the training burden compared to initialisation from random weights, the rather crude surgery of replacing the original tokenizer complicates the fine-tuning process significantly. By changing the vocabulary size $V$, the hidden states within the decoder must now be projected onto a different space than that seen during pre-training and the weights of the decoder must thus be partially reinitialised. Doing so naïvely may lead to instability during training and could end up damaging the learned representations within the image encoder. To circumvent this, we _freeze_ the weights of the encoder during the initial training phase, allowing the decoder to adapt to the new vocabulary without perturbing the learned image representations. Additionally, we employ a generous warm-up period of $10%$ TODO
 
-
+Training was undertaken on a workstation equipped with an NVIDIA RTX 4090 GPU with 24 GB of VRAM generously made available by NanoNord A/S
 TODO: Split training, frozen encoder, yada yada
 TODO: Loss
 
